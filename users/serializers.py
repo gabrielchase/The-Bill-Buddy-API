@@ -30,6 +30,7 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
     def create(self, data):
+        print('Creating user with data: ', data)
         details = data.pop('details')
         new_user = User.objects.create_user(
             first_name=data.get('first_name'),
@@ -39,5 +40,5 @@ class UserSerializer(serializers.ModelSerializer):
             mobile_number=details.get('mobile_number'),
             password=data.get('password')
         )
-
+        print('Created new user for {}'.format(new_user))
         return new_user
