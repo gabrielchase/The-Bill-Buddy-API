@@ -11,7 +11,7 @@ class DetailsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Details
-        fields = ('country', 'mobile_number')
+        fields = ('user_id', 'country', 'mobile_number')
 
 
 class UserSerializer(serializers.ModelSerializer):

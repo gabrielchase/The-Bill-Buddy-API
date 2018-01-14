@@ -3,7 +3,7 @@ from mixer.backend.django import mixer
 
 from rest_framework.test import APIRequestFactory
 
-from users.tests.fixtures import (json_user_with_details, other_json_user)
+from users.tests.fixtures import (json_user_with_details,)
 from users.views import UserViewSet
 
 import json
@@ -17,7 +17,7 @@ USERS_URI = 'api/users/'
 
 class TestUsersRegister:
 
-    def test_user_register_with_details(self, json_user_with_details, other_json_user):
+    def test_user_register_with_details(self, json_user_with_details):
         view = UserViewSet.as_view({'post': 'create'})
         request = factory.post(USERS_URI, data=json.dumps(json_user_with_details), content_type='application/json')
         response = view(request)
@@ -60,6 +60,7 @@ class TestUsersRegister:
         assert response.status_code == 201
         assert response.data.get('id')
         assert response.data.get('details')
+        assert response.data.get('details', {}).get('user_id') == response.data.get('id')
         assert not response.data.get('details', {}).get('country') 
         assert not response.data.get('details', {}).get('mobile_number')
         
