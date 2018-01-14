@@ -8,7 +8,9 @@ from rest_framework.response import Response
 from rest_framework_jwt.settings import api_settings
 from rest_framework import viewsets
 from rest_framework import status
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
+from users.permissions import UserPermission
 from users.serializers import (UserSerializer, UserLoginSerializer)
 
 User = get_user_model()
@@ -17,10 +19,11 @@ User = get_user_model()
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    authentication_classes = (JSONWebTokenAuthentication,)
+    permission_classes = (UserPermission,)
 
 
 class LoginAPIView(APIView):
-
     serializer_class = UserLoginSerializer
 
     def post(self, request):
