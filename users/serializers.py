@@ -7,6 +7,11 @@ from users.models import Details
 User = get_user_model()
 
 
+class UserLoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(max_length=255)
+
+
 class DetailsSerializer(serializers.ModelSerializer):
 
     class Meta:
