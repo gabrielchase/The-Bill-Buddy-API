@@ -18,9 +18,11 @@ from django.contrib import admin
 
 from rest_framework.routers import DefaultRouter
 from users.views import (UserViewSet, LoginAPIView)
+from bills.views import BillViewSet
 
 router = DefaultRouter()
 router.register('users', UserViewSet)
+router.register('bills', BillViewSet)
 
 
 urlpatterns = [
