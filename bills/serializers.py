@@ -42,6 +42,9 @@ class BillSerializer(serializers.ModelSerializer):
         return json.loads(json.dumps(user_details))
 
     def create(self, data):
+        print('Creating a Bill with the following data: ', data)
+        print('request.user: ', self.context['request'].user)
+
         service_instance = None
         service_name = data.get('service', {}).get('name').title()
 
@@ -49,6 +52,8 @@ class BillSerializer(serializers.ModelSerializer):
             service_instance = Service.objects.get(name=service_name)
         except Service.DoesNotExist:
             service_instance = Service.objects.create(name=service_name)
+
+        print('service_inst1ance: ', service_instance)
         
         due_date = data.get('due_date')
         
@@ -65,5 +70,7 @@ class BillSerializer(serializers.ModelSerializer):
             service=service_instance,
             user=self.context['request'].user
         )
+
+        print('New bill created: ', new_bill)
         
         return new_bill
