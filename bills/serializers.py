@@ -6,6 +6,8 @@ from bills.models import (Bill, Service)
 
 from users.serializers import (UserSerializer)
 
+import json
+
 User = get_user_model()
 
 
@@ -34,33 +36,34 @@ class BillSerializer(serializers.ModelSerializer):
             'username': obj.user.username,
             'date_joined': obj.user.date_joined.isoformat(),
             'country': obj.user.details.country,
-            'mobile_number': obj.user.details.goal
+            'mobile_number': obj.user.details.mobile_number
         }
 
         return json.loads(json.dumps(user_details))
 
-    # def create(self, data):
-    #     name = data.get()
-    #     if due_date:
-    #         if due_date > 31 or due_date < 1:
-    #             raise ValueError('Due date must be between 1 and 31')
-    #         else:
-    #             pass
+    def create(self, data):
+        service_instance = None
+        service_name = data.get('service', {}).get('name').title()
 
-    #     service_instance = None
+        try:
+            service_instance = Service.objects.get(name=service_name)
+        except Service.DoesNotExist:
+            service_instance = Service.objects.create(name=service_name)
         
-    #     try:
-    #         service_instance = Service.objects.get(name=service)
-    #     except Service.DoesNotExist:
-    #         service_instance = Service.create_service(name=service)
+        due_date = data.get('due_date')
         
-    #     new_bill = self.model(
-    #         name=name,
-    #         description=description,
-    #         due_date=due_date,
-    #         service=service_instance,
-    #         user=user
-    #     )
-    #     new_bill.save()
+        if due_date:
+            if due_date > 31 or due_date < 1:
+                raise ValueError('Due date must be between 1 and 31')
+            else:
+                pass
         
-    #     return new_bill
+        new_bill = Bill.objects.create(
+            name=data.get('name'),
+            description=data.get('description'),
+            due_date=due_date,
+            service=service_instance,
+            user=self.context['request'].user
+        )
+        
+        return new_bill
