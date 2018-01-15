@@ -14,4 +14,6 @@ class BillViewSet(viewsets.ModelViewSet):
     authentication_classes = (JSONWebTokenAuthentication,)
     permission_classes = (BillPermission,)
 
-
+    def get_queryset(self):
+        return Bill.objects.filter(user=self.request.user)
+        
