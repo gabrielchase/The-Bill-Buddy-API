@@ -16,9 +16,9 @@ class Service(models.Model):
 class Bill(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255, null=False, blank=False)
-    description = models.TextField()
-    due_date = models.IntegerField()
-    service = models.ForeignKey(Service, on_delete=models.CASCADE)
+    description = models.TextField(null=True, blank=True)
+    due_date = models.IntegerField(null=True, blank=True)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False)
 
     def __str__(self):
