@@ -74,3 +74,4 @@ class BillSerializer(serializers.ModelSerializer):
         print('New bill created: ', new_bill)
         
         return new_bill
+        

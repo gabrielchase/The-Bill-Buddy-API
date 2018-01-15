@@ -22,7 +22,7 @@ class UserViewSet(viewsets.ModelViewSet):
     authentication_classes = (JSONWebTokenAuthentication,)
     permission_classes = (UserPermission,)
 
-
+# Write test for this
 class LoginAPIView(APIView):
     serializer_class = UserLoginSerializer
 
