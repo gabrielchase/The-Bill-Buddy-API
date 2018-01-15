@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from bills.models import (Bill, Service)
+from bills.utils import handle_service_instance
 
 from users.serializers import (UserSerializer)
 
@@ -45,13 +46,8 @@ class BillSerializer(serializers.ModelSerializer):
         print('Creating a Bill with the following data: ', data)
         print('request.user: ', self.context['request'].user)
 
-        service_instance = None
-        service_name = data.get('service', {}).get('name').title()
-
-        try:
-            service_instance = Service.objects.get(name=service_name)
-        except Service.DoesNotExist:
-            service_instance = Service.objects.create(name=service_name)
+        service_name = data.get('service', {}).get('name')
+        service_instance = handle_service_instance(service_name)
 
         print('service_inst1ance: ', service_instance)
         
