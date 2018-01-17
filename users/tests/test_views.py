@@ -3,7 +3,8 @@ from mixer.backend.django import mixer
 
 from rest_framework.test import APIRequestFactory
 
-from users.tests.fixtures import (json_user_with_details, new_user)
+from users.tests.fixtures import (json_user_with_details, new_user, other_user)
+from users.tests.utils import get_jwt_header
 from users.views import (UserViewSet, LoginAPIView)
 
 import json
@@ -66,13 +67,43 @@ class TestUsersViews:
         assert not response.data.get('details', {}).get('country') 
         assert not response.data.get('details', {}).get('mobile_number')
         
-    def test_user_get_all_user(self, new_user):
-        view = UserViewSet.as_view({'get': 'list'})
-        request = factory.get(USERS_URI)
-        response = view(request)
+    def test_user_get_all_users(self, new_user):
+        user_list_view = UserViewSet.as_view({'get': 'list'})
+        
+        unauthenticated_request = factory.get(USERS_URI)
+        unauthenticated_response = user_list_view(unauthenticated_request)
+        assert unauthenticated_response.status_code == 401 
 
-        assert response.status_code == 401
+        authenticated_request = factory.get(
+            USERS_URI, 
+            HTTP_AUTHORIZATION=get_jwt_header(new_user.email)
+        )
+        authenticated_response = user_list_view(unauthenticated_request)
+        assert authenticated_response.status_code == 401
 
+    def test_user_get_self(self, new_user):
+        view = UserViewSet.as_view({'get': 'retrieve'})
+        request = factory.get(
+            USERS_URI,
+            HTTP_AUTHORIZATION=get_jwt_header(new_user.email) 
+        )
+        response = view(request, pk=new_user.id)
+
+        assert response.status_code == 200
+        assert response.data.get('id') == new_user.id
+        assert response.data.get('email') == new_user.email
+        assert response.data.get('username') == new_user.username
+
+    def test_user_get_other_user(self, new_user, other_user):
+        view = UserViewSet.as_view({'get': 'retrieve'})
+        request = factory.get(
+            USERS_URI,
+            HTTP_AUTHORIZATION=get_jwt_header(new_user.email) 
+        )
+        response = view(request, pk=other_user.id)
+
+        assert response.status_code == 403
+            
 
 class TestUsersLogin:
 
