@@ -3,8 +3,8 @@ from mixer.backend.django import mixer
 
 from rest_framework.test import APIRequestFactory
 
-from users.tests.fixtures import (json_user_with_details,)
-from users.views import UserViewSet
+from users.tests.fixtures import (json_user_with_details, new_user)
+from users.views import (UserViewSet, LoginAPIView)
 
 import json
 import pytest
@@ -12,10 +12,12 @@ import pytest
 pytestmark = pytest.mark.django_db
 User = get_user_model()
 factory = APIRequestFactory()
+
 USERS_URI = 'api/users/'
+LOGIN_URI = 'api/login/'
 
 
-class TestUsersRegister:
+class TestUsersViews:
 
     def test_user_register_with_details(self, json_user_with_details):
         view = UserViewSet.as_view({'post': 'create'})
@@ -64,3 +66,30 @@ class TestUsersRegister:
         assert not response.data.get('details', {}).get('country') 
         assert not response.data.get('details', {}).get('mobile_number')
         
+    def test_user_get_all_user(self, new_user):
+        view = UserViewSet.as_view({'get': 'list'})
+        request = factory.get(USERS_URI)
+        response = view(request)
+
+        assert response.status_code == 401
+
+
+class TestUsersLogin:
+
+    def test_jwt_return_on_login(self, json_user_with_details):
+        register_view = UserViewSet.as_view({'post': 'create'})
+        register_request = factory.post(USERS_URI, data=json.dumps(json_user_with_details), content_type='application/json')
+        register_response = register_view(register_request)
+
+        assert register_response.status_code == 201
+        assert register_response.data.get('id')
+
+        login_view =  LoginAPIView.as_view()
+        login_data = {'email': json_user_with_details['email'], 'password': json_user_with_details['password']}
+        login_request = factory.post(LOGIN_URI, data=json.dumps(json_user_with_details), content_type='application/json')
+        login_response = login_view(login_request)
+
+        assert login_response.status_code == 200
+        assert login_response.data.get('user_id') == register_response.data.get('id')
+        assert login_response.data.get('email') == register_response.data.get('email')
+        assert login_response.data.get('token')
