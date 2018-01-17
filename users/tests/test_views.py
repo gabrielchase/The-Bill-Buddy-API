@@ -3,7 +3,8 @@ from mixer.backend.django import mixer
 
 from rest_framework.test import APIRequestFactory
 
-from users.tests.fixtures import (json_user_with_details, new_user, other_user)
+from users.tests.fixtures import (
+    json_user_with_details, other_json_user_with_details, new_user, other_user)
 from users.tests.utils import get_jwt_header
 from users.views import (UserViewSet, LoginAPIView)
 
@@ -37,17 +38,7 @@ class TestUsersViews:
         assert response.data.get('email') == json_user_email
         assert response.data.get('first_name') == json_user_first_name
         assert response.data.get('last_name') == json_user_last_name
-
-        instances_count = User.objects.filter(
-                        first_name=json_user_first_name, 
-                        last_name=json_user_last_name).count()
-        
-        # Check if username is correct
-        if instances_count != 1:
-            assert response.data.get('username') == '{}{}-{}'.format(json_user_first_name, json_user_last_name, instances_count)
-        else:
-            assert response.data.get('username') == '{}{}'.format(json_user_first_name, json_user_last_name)
-
+        assert response.data.get('username') == '{}{}-{}'.format(json_user_first_name, json_user_last_name, response.data.get('id'))
         assert response.data.get('details', {}).get('country') == json_user_country
         assert response.data.get('details', {}).get('mobile_number') == json_user_mobile_number
 
@@ -103,7 +94,42 @@ class TestUsersViews:
         response = view(request, pk=other_user.id)
 
         assert response.status_code == 403
-            
+    
+    def test_user_update_self(self, json_user_with_details, other_json_user_with_details):
+        user = User.objects.create_user(
+            first_name=json_user_with_details['first_name'],
+            last_name=json_user_with_details['last_name'],
+            email=json_user_with_details['email'],
+            country=json_user_with_details['details']['country'],
+            mobile_number=json_user_with_details['details']['mobile_number'],
+            password=json_user_with_details['password']
+        )
+
+        assert user.id
+        assert user.email == json_user_with_details['email']
+        assert user.username == '{}{}-{}'.format(json_user_with_details['first_name'], json_user_with_details['last_name'], user.id)
+
+        other_json_user_with_details['password'] = json_user_with_details['password']
+        
+        view = UserViewSet.as_view({'put': 'update'})
+        request = factory.put(
+            USERS_URI,
+            data=json.dumps(other_json_user_with_details), 
+            content_type='application/json',
+            HTTP_AUTHORIZATION=get_jwt_header(user.email)
+        )
+        response = view(request, pk=user.id)
+
+        assert response.status_code == 200
+        assert response.data.get('id') == user.id
+        assert User.objects.get(id=response.data.get('id')) == User.objects.get(id=user.id)
+        assert response.data.get('first_name') == other_json_user_with_details['first_name']
+        assert response.data.get('last_name') == other_json_user_with_details['last_name']
+        assert response.data.get('email') == other_json_user_with_details['email']
+        assert response.data.get('username') == '{}{}-{}'.format(other_json_user_with_details['first_name'], other_json_user_with_details['last_name'], response.data.get('id'))
+        assert response.data.get('details', {}).get('country') == other_json_user_with_details['details']['country']
+        assert response.data.get('details', {}).get('mobile_number') == other_json_user_with_details['details']['mobile_number']
+        
 
 class TestUsersLogin:
 
