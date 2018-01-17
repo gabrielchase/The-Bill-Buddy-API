@@ -18,7 +18,9 @@ def new_bill_info():
         'name': mixer.faker.genre(),
         'description': mixer.faker.text(),
         'due_date': randint(1, 31),
-        'service_name': mixer.faker.genre(),
+        'service': {
+            'name': mixer.faker.genre()
+        }
     }
 
 @pytest.fixture

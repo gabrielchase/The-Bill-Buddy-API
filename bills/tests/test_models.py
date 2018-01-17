@@ -19,7 +19,7 @@ class TestBillsModels:
             name=new_bill_info['name'],
             description=new_bill_info['description'],
             due_date=new_bill_info['due_date'],
-            service=handle_service_instance(new_bill_info['service_name']),
+            service=handle_service_instance(new_bill_info['service']['name']),
             user=new_user
         )
 
@@ -27,6 +27,6 @@ class TestBillsModels:
         assert new_bill_instance.name == new_bill_info['name']
         assert new_bill_instance.description == new_bill_info['description']
         assert new_bill_instance.due_date == new_bill_info['due_date']
-        assert Service.objects.get(name=new_bill_info['service_name'].title()).id
+        assert Service.objects.get(name=new_bill_info['service']['name'].title()).id
         assert new_bill_instance.user == new_user
         
