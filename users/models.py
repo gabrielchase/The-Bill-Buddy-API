@@ -50,10 +50,10 @@ class User(AbstractUser):
     def set_username(self):
         instances = User.objects.filter(first_name=self.first_name, last_name=self.last_name).count()
         
-        if instances:
-            self.username =  '{}{}-{}'.format(self.first_name, self.last_name, instances+1)
+        if instances != 0:
+            self.username = '{}{}-{}'.format(self.first_name, self.last_name, instances+1)
         else:
-            self.username =  '{}{}'.format(self.first_name, self.last_name)
+            self.username = '{}{}'.format(self.first_name, self.last_name)
         
         self.save()
 

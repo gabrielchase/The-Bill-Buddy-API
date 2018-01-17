@@ -85,6 +85,16 @@ class TestUsersModels:
             )
         assert str(excinfo.value) == 'Users must register an email address', 'Exception that handles email provided in registration is None'
 
+    def test_model_username(self, new_user_info):
+        u1 = User.objects.create_user(
+            new_user_info['first_name'],
+            new_user_info['last_name'],
+            new_user_info['email'],
+            new_user_info['password']
+        )
+
+        assert u1.id
+
         # User with the same first_name last_name is created 
         # because it has a different email.
         # This user's username appends the number of instance it is in the database to the end
