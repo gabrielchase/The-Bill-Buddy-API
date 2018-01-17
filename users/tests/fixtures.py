@@ -30,6 +30,8 @@ def new_user():
         password=generate_random_password()
     )
 
+other_user = new_user
+
 @pytest.fixture
 def json_user_with_details():
     return {
@@ -43,4 +45,4 @@ def json_user_with_details():
         }
     }
 
-# other_json_user = json_user_with_details
+other_json_user_with_details = json_user_with_details
