@@ -3,11 +3,15 @@ from mixer.backend.django import mixer
 
 from rest_framework.test import APIRequestFactory
 
-from bills.tests.fixtures import (new_bill_info, new_bill)
+from bills.models import Bill
+from bills.tests.fixtures import (new_bill_info, new_bill, other_bill)
 from bills.views import BillViewSet
+from bills.utils import handle_service_instance
 
-from users.tests.fixtures import new_user
+from users.tests.fixtures import (new_user, other_user)
 from users.tests.utils import get_jwt_header
+
+from random import randint
 
 import json
 import pytest
@@ -46,9 +50,60 @@ class TestBillsViews:
         assert response.data.get('user_details', {}).get('first_name') == new_user.first_name
         assert response.data.get('user_details', {}).get('last_name') == new_user.last_name
 
+    def test_get_and_retrieve_own_bills(self, new_user, other_user): 
+        Bill.objects.create(
+            name=mixer.faker.first_name(),
+            description=mixer.faker.text(),
+            due_date=randint(1, 31),
+            service=handle_service_instance(mixer.faker.genre()),
+            user=new_user
+        )
+        
+        Bill.objects.create(
+            name=mixer.faker.first_name(),
+            description=mixer.faker.text(),
+            due_date=randint(1, 31),
+            service=handle_service_instance(mixer.faker.genre()),
+            user=new_user
+        )
+        
+        Bill.objects.create(
+            name=mixer.faker.first_name(),
+            description=mixer.faker.text(),
+            due_date=randint(1, 31),
+            service=handle_service_instance(mixer.faker.genre()),
+            user=other_user
+        )
+        
+        Bill.objects.create(
+            name=mixer.faker.first_name(),
+            description=mixer.faker.text(),
+            due_date=randint(1, 31),
+            service=handle_service_instance(mixer.faker.genre()),
+            user=other_user
+        )
 
-
-
-
-
-
+        good_list_view = BillViewSet.as_view({'get': 'list'})
+        good_list_request = factory.get(
+            BILLS_URI, 
+            HTTP_AUTHORIZATION=get_jwt_header(new_user.email),
+        )
+        good_list_response = good_list_view(good_list_request)
+        
+        assert good_list_response.status_code == 200
+        
+        bills = good_list_response.data
+        
+        for bill in bills:
+            assert bill.get('id')
+            assert bill.get('user_details', {}).get('id') == new_user.id
+            assert bill.get('user_details', {}).get('email') == new_user.email
+            
+            good_retrieve_view = BillViewSet.as_view({'get': 'retrieve'})
+            good_retrieve_request = factory.get(
+                BILLS_URI,
+                HTTP_AUTHORIZATION=get_jwt_header(new_user.email),
+            )
+            good_retrieve_response = good_retrieve_view(good_retrieve_request, pk=bill.get('id'))
+            
+            assert good_retrieve_response.status_code == 200
