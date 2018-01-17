@@ -107,3 +107,24 @@ class TestBillsViews:
             good_retrieve_response = good_retrieve_view(good_retrieve_request, pk=bill.get('id'))
             
             assert good_retrieve_response.status_code == 200
+
+    def test_get_other_bills_should_be_forbidden(self, new_user, other_user):
+        b1 = Bill.objects.create(
+            name=mixer.faker.first_name(),
+            description=mixer.faker.text(),
+            due_date=randint(1, 31),
+            service=handle_service_instance(mixer.faker.genre()),
+            user=new_user
+        )
+
+        assert b1.id
+        assert b1.user == new_user
+
+        bad_retrieve_view = BillViewSet.as_view({'get': 'retrieve'})
+        bad_retrieve_request = factory.get(
+            BILLS_URI,
+            HTTP_AUTHORIZATION=get_jwt_header(other_user.email),
+        )
+        bad_retrieve_response = bad_retrieve_view(bad_retrieve_request, pk=b1.id)
+        
+        assert bad_retrieve_response.status_code == 403
