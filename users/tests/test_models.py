@@ -20,7 +20,7 @@ class TestUsersModels:
             password=new_user_info['password']
         )
 
-        expected_username = '{}{}'.format(new_user_info['first_name'], new_user_info['last_name'])
+        expected_username = '{}{}-{}'.format(new_user_info['first_name'], new_user_info['last_name'], new_user.id)
 
         # Check user is created
         assert new_user.id
@@ -105,8 +105,7 @@ class TestUsersModels:
             other_email,
             new_user_info['password']
         )
-        instances = User.objects.filter(first_name=new_user_info['first_name'], last_name=new_user_info['last_name']).count()
-        expected_username = '{}{}-{}'.format(new_user_info['first_name'], new_user_info['last_name'], instances)
+        expected_username = '{}{}-{}'.format(u2.first_name, u2.last_name, u2.id)
 
         assert u2.first_name == new_user_info['first_name']
         assert u2.last_name == new_user_info['last_name']
@@ -122,8 +121,7 @@ class TestUsersModels:
             other_email_2,
             new_user_info['password']
         )
-        instances = User.objects.filter(first_name=new_user_info['first_name'], last_name=new_user_info['last_name']).count()
-        expected_username = '{}{}-{}'.format(new_user_info['first_name'], new_user_info['last_name'], instances)
+        expected_username = '{}{}-{}'.format(u3.first_name, u3.last_name, u3.id)
 
         assert u3.first_name == new_user_info['first_name']
         assert u3.last_name == new_user_info['last_name']

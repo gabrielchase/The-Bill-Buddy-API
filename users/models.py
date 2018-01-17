@@ -19,8 +19,8 @@ class UserManager(BaseUserManager):
         )
 
         new_user.set_password(password)
-        new_user.set_username()
         new_user.save(using=self._db)
+        new_user.set_username()
 
         new_user_details = Details.objects.create(
             user=new_user,
@@ -48,13 +48,7 @@ class User(AbstractUser):
         return self.username
 
     def set_username(self):
-        instances = User.objects.filter(first_name=self.first_name, last_name=self.last_name).count()
-        
-        if instances != 0:
-            self.username = '{}{}-{}'.format(self.first_name, self.last_name, instances+1)
-        else:
-            self.username = '{}{}'.format(self.first_name, self.last_name)
-        
+        self.username = '{}{}-{}'.format(self.first_name, self.last_name, self.id)
         self.save()
 
     def __str__(self):
