@@ -130,6 +130,36 @@ class TestUsersViews:
         assert response.data.get('details', {}).get('country') == other_json_user_with_details['details']['country']
         assert response.data.get('details', {}).get('mobile_number') == other_json_user_with_details['details']['mobile_number']
         
+    def test_user_update_other_user(self, json_user_with_details, other_json_user_with_details):
+        user = User.objects.create_user(
+            first_name=json_user_with_details['first_name'],
+            last_name=json_user_with_details['last_name'],
+            email=json_user_with_details['email'],
+            country=json_user_with_details['details']['country'],
+            mobile_number=json_user_with_details['details']['mobile_number'],
+            password=json_user_with_details['password']
+        )
+
+        other_user = User.objects.create_user(
+            first_name=other_json_user_with_details['first_name'],
+            last_name=other_json_user_with_details['last_name'],
+            email=other_json_user_with_details['email'],
+            country=other_json_user_with_details['details']['country'],
+            mobile_number=other_json_user_with_details['details']['mobile_number'],
+            password=other_json_user_with_details['password']
+        )
+
+        view = UserViewSet.as_view({'put': 'update'})
+        request = factory.put(
+            USERS_URI,
+            data=json.dumps({'email': 'lskdfjl@email.com', 'password': 'skfdjlasdjf', 'details': {}}), 
+            content_type='application/json',
+            HTTP_AUTHORIZATION=get_jwt_header(other_user.email)
+        )
+        response = view(request, pk=user.id)
+
+        assert response.status_code == 403
+
 
 class TestUsersLogin:
 
