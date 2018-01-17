@@ -47,3 +47,22 @@ class UserSerializer(serializers.ModelSerializer):
         )
         print('Created new user for {}'.format(new_user))
         return new_user
+
+    def update(self, user_instance, data):
+        password = data.get('password')
+        details = data.get('details')
+        
+        if user_instance.check_password(password):
+            user_instance.first_name = data.get('first_name')
+            user_instance.last_name = data.get('last_name')
+            user_instance.email = data.get('email')
+            user_instance.save()
+            user_instance.set_username()
+
+            if details:
+                detail_instance = Details.objects.get(user_id=user_instance.id)
+                detail_instance.country = details.get('country')
+                detail_instance.mobile_number = details.get('mobile_number')
+                detail_instance.save()
+
+        return user_instance
