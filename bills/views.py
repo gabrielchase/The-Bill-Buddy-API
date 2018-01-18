@@ -15,5 +15,11 @@ class BillViewSet(viewsets.ModelViewSet):
     permission_classes = (BillPermission,)
 
     def get_queryset(self):
-        return Bill.objects.filter(user=self.request.user)
+        service_name = self.request.GET.get('service')
+        bills = Bill.objects.filter(user=self.request.user)
+        
+        if service_name: 
+            bills = bills.filter(service__name=service_name)
+
+        return bills
         
