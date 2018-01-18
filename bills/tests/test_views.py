@@ -66,22 +66,6 @@ class TestBillsViews:
             service=handle_service_instance(mixer.faker.genre()),
             user=new_user
         )
-        
-        Bill.objects.create(
-            name=mixer.faker.first_name(),
-            description=mixer.faker.text(),
-            due_date=randint(1, 31),
-            service=handle_service_instance(mixer.faker.genre()),
-            user=other_user
-        )
-        
-        Bill.objects.create(
-            name=mixer.faker.first_name(),
-            description=mixer.faker.text(),
-            due_date=randint(1, 31),
-            service=handle_service_instance(mixer.faker.genre()),
-            user=other_user
-        )
 
         good_list_view = BillViewSet.as_view({'get': 'list'})
         good_list_request = factory.get(
@@ -93,6 +77,7 @@ class TestBillsViews:
         assert good_list_response.status_code == 200
         
         bills = good_list_response.data
+        assert len(bills) == 2
         
         for bill in bills:
             assert bill.get('id')
