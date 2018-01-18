@@ -16,13 +16,16 @@ class BillPermission(permissions.BasePermission):
             # Get /api/bills/:id
                 # Only allow if obj.user == request.user
 
-        if request.META.get('HTTP_AUTHORIZATION').split()[1]:
-            if request.method == 'POST':
-                return True        
-            elif request.method == 'GET':
-                if 'pk' in view.kwargs and view.kwargs['pk']:
-                    pk = view.kwargs['pk']
-                    obj = Bill.objects.get(id=pk)
-                    return obj.user == request.user
-                else:
-                    return True
+        try:
+            if request.META.get('HTTP_AUTHORIZATION').split()[1]:
+                if request.method == 'POST':
+                    return True        
+                elif request.method == 'GET':
+                    if 'pk' in view.kwargs and view.kwargs['pk']:
+                        pk = view.kwargs['pk']
+                        obj = Bill.objects.get(id=pk)
+                        return obj.user == request.user
+                    else:
+                        return True
+        except AttributeError:
+            return False
