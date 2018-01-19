@@ -2,6 +2,8 @@ from django.shortcuts import render
 
 from rest_framework import viewsets
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from rest_framework import status
+from rest_framework.response import Response
 
 from bills.models import Bill
 from bills.permissions import BillPermission
@@ -15,6 +17,9 @@ class BillViewSet(viewsets.ModelViewSet):
     permission_classes = (BillPermission,)
 
     def get_queryset(self):
+        if self.request.user.is_anonymous:
+            raise ValueError('JWT not found in request headers')
+        
         service_name = self.request.GET.get('service')
         bills = Bill.objects.filter(user=self.request.user)
         
