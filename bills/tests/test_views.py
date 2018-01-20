@@ -4,7 +4,7 @@ from mixer.backend.django import mixer
 from rest_framework.test import APIRequestFactory
 
 from bills.models import Bill
-from bills.tests.fixtures import (new_bill_info, new_bill, other_bill)
+from bills.tests.fixtures import (new_bill_info, other_bill_info)
 from bills.views import BillViewSet
 from bills.utils import handle_service_instance
 
@@ -178,3 +178,54 @@ class TestBillsViews:
         bad_retrieve_response = bad_retrieve_view(bad_retrieve_request, pk=b1.id)
         
         assert bad_retrieve_response.status_code == 403
+
+    def test_bill_update_by_good_user(self, new_user, other_bill_info):
+        b1 = Bill.objects.create(
+            name=mixer.faker.first_name(),
+            description=mixer.faker.text(),
+            due_date=randint(1, 31),
+            service=handle_service_instance(mixer.faker.genre()),
+            user=new_user
+        )
+
+        assert b1.id
+        assert b1.user == new_user        
+
+        view = BillViewSet.as_view({'put': 'update'})
+        request = factory.put(
+            BILLS_URI,
+            data=json.dumps(other_bill_info), 
+            content_type='application/json',
+            HTTP_AUTHORIZATION=get_jwt_header(new_user.email)
+        )
+        response = view(request, pk=b1.id)
+        
+        assert response.status_code == 200
+        assert response.data.get('id') == b1.id
+        assert response.data.get('name') == other_bill_info['name']
+        assert response.data.get('description') == other_bill_info['description']
+        assert response.data.get('due_date') == other_bill_info['due_date']
+        assert response.data.get('service', {}).get('name') == other_bill_info['service']['name'].title()
+
+    def test_bill_update_by_bad_user(self, new_bill_info, other_bill_info, new_user, other_user):
+        new_bill_instance = Bill.objects.create(
+            name=new_bill_info['name'],
+            description=new_bill_info['description'],
+            due_date=new_bill_info['due_date'],
+            service=handle_service_instance(new_bill_info['service']['name']),
+            user=new_user
+        )
+
+        assert new_bill_instance.id
+
+        view = BillViewSet.as_view({'put': 'update'})
+        request = factory.put(
+            BILLS_URI,
+            data=json.dumps(other_bill_info), 
+            content_type='application/json',
+            HTTP_AUTHORIZATION=get_jwt_header(other_user.email)
+        )
+        response = view(request, pk=new_bill_instance.id)
+
+        assert response.status_code == 403
+        
