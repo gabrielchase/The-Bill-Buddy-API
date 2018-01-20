@@ -5,13 +5,14 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_jwt.views import verify_jwt_token
 
 from users.views import (UserViewSet, LoginAPIView)
-
 from bills.views import BillViewSet
+from payments.views import PaymentViewSet
 
 
 router = DefaultRouter()
 router.register('users', UserViewSet)
 router.register('bills', BillViewSet)
+router.register('payments', PaymentViewSet)
 
 
 urlpatterns = [
