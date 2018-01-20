@@ -13,7 +13,7 @@ class Payment(models.Model):
     due_date = models.DateField(auto_now=False, auto_now_add=False)
     date_paid = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
     status = models.CharField(max_length=8,default='NOT PAID')
-    additional_notes = models.TextField()
+    additional_notes = models.TextField(null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False)
     bill = models.ForeignKey(Bill, on_delete=models.CASCADE, null=False, blank=False)
 
