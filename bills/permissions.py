@@ -18,14 +18,16 @@ class BillPermission(permissions.BasePermission):
 
         try:
             if request.META.get('HTTP_AUTHORIZATION').split()[1]:
-                if request.method in ['POST', 'PUT', 'DELETE']:
-                    return True        
-                elif request.method == 'GET':
+                if request.method in 'POST':
+                    return True
+                elif request.method in ['GET', 'PUT', 'DELETE']:
                     if 'pk' in view.kwargs and view.kwargs['pk']:
+                        # /api/bills/:id/
                         pk = view.kwargs['pk']
                         obj = Bill.objects.get(id=pk)
                         return obj.user == request.user
                     else:
+                        # /api/bills/
                         return True
         except AttributeError:
             return False

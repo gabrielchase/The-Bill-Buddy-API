@@ -72,13 +72,13 @@ class BillSerializer(serializers.ModelSerializer):
         return new_bill
         
     def update(self, bill_instance, data):
-        if self.context['request'].user == bill_instance.user:
-            service_name = data.get('service', {}).get('name')
-            bill_instance.name = data.get('name')
-            bill_instance.description = data.get('description')
-            bill_instance.due_date = data.get('due_date')
-            bill_instance.service = handle_service_instance(service_name)
-            bill_instance.save()
-            return bill_instance
-        else: 
-            raise ValueError('JWT not the valid user to this bill instance')
+        print('Updating: ', bill_instance)
+        print('Data: ', data)
+        service_name = data.get('service', {}).get('name')
+        bill_instance.name = data.get('name')
+        bill_instance.description = data.get('description')
+        bill_instance.due_date = data.get('due_date')
+        bill_instance.service = handle_service_instance(service_name)
+        bill_instance.save()
+        print('Updated instance: ', bill_instance)
+        return bill_instance
