@@ -23,14 +23,4 @@ def new_bill_info():
         }
     }
 
-@pytest.fixture
-def new_bill(new_user):
-    return Bill.objects.create(
-        name=mixer.faker.first_name(),
-        description=mixer.faker.text(),
-        due_date=randint(1, 31),
-        service=handle_service_instance(mixer.faker.genre()),
-        user=new_user
-    )
-
-other_bill = new_bill
+other_bill_info = new_bill_info

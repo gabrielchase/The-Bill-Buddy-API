@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from mixer.backend.django import mixer
 
 from bills.models import (Bill, Service)
-from bills.tests.fixtures import (new_user, new_bill, new_bill_info)
+from bills.tests.fixtures import (new_user, new_bill_info)
 from bills.utils import handle_service_instance
 
 # IMPORTANT: Allows tests to write into the database 
