@@ -2,8 +2,6 @@ from rest_framework import permissions
 
 from bills.models import Bill
 
-import requests
-
 
 class BillPermission(permissions.BasePermission):
 
