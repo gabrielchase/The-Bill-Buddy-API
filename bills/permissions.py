@@ -9,7 +9,7 @@ class BillPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
         # If JWT 
-            # Post to /api/bills/
+            # Post, Put, Delete to /api/bills/
                 # return True
             # Get /api/bills/ 
                 # return True
@@ -18,7 +18,7 @@ class BillPermission(permissions.BasePermission):
 
         try:
             if request.META.get('HTTP_AUTHORIZATION').split()[1]:
-                if request.method == 'POST':
+                if request.method in ['POST', 'PUT', 'DELETE']:
                     return True        
                 elif request.method == 'GET':
                     if 'pk' in view.kwargs and view.kwargs['pk']:
