@@ -2,8 +2,6 @@ from django.shortcuts import render
 
 from rest_framework import viewsets
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-from rest_framework import status
-from rest_framework.response import Response
 
 from bills.models import Bill
 from bills.permissions import BillPermission
