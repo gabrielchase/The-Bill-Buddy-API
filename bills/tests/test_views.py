@@ -93,6 +93,71 @@ class TestBillsViews:
             
             assert good_retrieve_response.status_code == 200
 
+    def test_get_bills_and_query_by_service(self, new_user):
+        Bill.objects.create(
+            name=mixer.faker.first_name(),
+            description=mixer.faker.text(),
+            due_date=randint(1, 31),
+            service=handle_service_instance('House'),
+            user=new_user
+        )
+        Bill.objects.create(
+            name=mixer.faker.first_name(),
+            description=mixer.faker.text(),
+            due_date=randint(1, 31),
+            service=handle_service_instance('House'),
+            user=new_user
+        )
+        Bill.objects.create(
+            name=mixer.faker.first_name(),
+            description=mixer.faker.text(),
+            due_date=randint(1, 31),
+            service=handle_service_instance('House'),
+            user=new_user
+        )
+        Bill.objects.create(
+            name=mixer.faker.first_name(),
+            description=mixer.faker.text(),
+            due_date=randint(1, 31),
+            service=handle_service_instance('Membership'),
+            user=new_user
+        )
+        Bill.objects.create(
+            name=mixer.faker.first_name(),
+            description=mixer.faker.text(),
+            due_date=randint(1, 31),
+            service=handle_service_instance('Membership'),
+            user=new_user
+        )
+
+        view = BillViewSet.as_view({'get': 'list'})
+        Bill.objects.count() == 5
+        membership_request = factory.get(
+            BILLS_URI + '?service=Membership',
+            HTTP_AUTHORIZATION=get_jwt_header(new_user.email),
+        )
+        membership_response = view(membership_request)
+        
+        assert membership_response.status_code == 200
+        assert len(membership_response.data) == 2
+        for bill in membership_response.data:
+            assert bill.get('id')
+            assert bill.get('service', {}).get('name') == 'Membership'
+            assert bill.get('user_details', {}).get('email') == new_user.email
+
+        house_request = factory.get(
+            BILLS_URI + '?service=House',
+            HTTP_AUTHORIZATION=get_jwt_header(new_user.email),
+        )
+        house_response = view(house_request)
+        
+        assert house_response.status_code == 200
+        assert len(house_response.data) == 3
+        for bill in house_response.data:
+            assert bill.get('id')
+            assert bill.get('service', {}).get('name') == 'House'
+            assert bill.get('user_details', {}).get('email') == new_user.email
+
     def test_get_other_bills_should_be_forbidden(self, new_user, other_user):
         b1 = Bill.objects.create(
             name=mixer.faker.first_name(),
