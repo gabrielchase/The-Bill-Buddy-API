@@ -18,11 +18,11 @@ class BillViewSet(viewsets.ModelViewSet):
         if self.request.user.is_anonymous:
             raise ValueError('JWT not found in request headers')
         
-        service_name = self.request.GET.get('service').title()
+        service_name = self.request.GET.get('service')
         bills = Bill.objects.filter(user=self.request.user)
         
         if service_name: 
-            bills = bills.filter(service__name=service_name)
+            bills = bills.filter(service__name=service_name.title())
 
         return bills
         
