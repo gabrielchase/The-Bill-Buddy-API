@@ -10,10 +10,11 @@ import pytest
 @pytest.fixture
 def new_payment_info():
     return {
-        'amount': mixer.faker.float(),
+        'amount': str(round(mixer.faker.positive_decimal(), 2)),
         'due_date': mixer.faker.date(),
         'date_paid': mixer.faker.date(),
         'status': get_status(),
+        'additional_notes': mixer.faker.text(),
     }
 
 @pytest.fixture
@@ -24,6 +25,7 @@ def new_payment():
         due_date=mixer.faker.date(),
         date_paid=mixer.faker.date(),
         status=get_status(),
+        additional_notes=mixer.faker.text(),
         bill=new_bill_instance,
         user=new_bill_instance.user
     )
