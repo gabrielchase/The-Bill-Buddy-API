@@ -23,11 +23,12 @@ class BillSerializer(serializers.ModelSerializer):
 
     payments = PaymentSerializer(many=True, read_only=True)
     service = ServiceSerializer()
+    user_id = serializers.IntegerField(read_only=True)
     # user_details = serializers.SerializerMethodField()
 
     class Meta:
         model = Bill
-        fields = ('id', 'name', 'description', 'due_date', 'service', 'payments', 'user')
+        fields = ('id', 'name', 'description', 'due_date', 'service', 'payments', 'user_id')
 
     def get_user_details(self, obj):
         user_details = {

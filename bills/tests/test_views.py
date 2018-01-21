@@ -44,11 +44,13 @@ class TestBillsViews:
         assert response.data.get('service', {}).get('id')
         assert response.data.get('service', {}).get('name') == new_bill_info['service']['name'].title()
 
-        assert response.data.get('user_details', {}).get('id') == new_user.id
-        assert response.data.get('user_details', {}).get('email') == new_user.email
-        assert response.data.get('user_details', {}).get('username') == new_user.username
-        assert response.data.get('user_details', {}).get('first_name') == new_user.first_name
-        assert response.data.get('user_details', {}).get('last_name') == new_user.last_name
+        assert response.data.get('user_id') == new_user.id
+
+        # assert response.data.get('user_details', {}).get('id') == new_user.id
+        # assert response.data.get('user_details', {}).get('email') == new_user.email
+        # assert response.data.get('user_details', {}).get('username') == new_user.username
+        # assert response.data.get('user_details', {}).get('first_name') == new_user.first_name
+        # assert response.data.get('user_details', {}).get('last_name') == new_user.last_name
 
     def test_get_and_retrieve_own_bills(self, new_user, other_user): 
         Bill.objects.create(
@@ -81,8 +83,9 @@ class TestBillsViews:
         
         for bill in bills:
             assert bill.get('id')
-            assert bill.get('user_details', {}).get('id') == new_user.id
-            assert bill.get('user_details', {}).get('email') == new_user.email
+            assert bill.get('user_id') == new_user.id
+            # assert bill.get('user_details', {}).get('id') == new_user.id
+            # assert bill.get('user_details', {}).get('email') == new_user.email
             
             good_retrieve_view = BillViewSet.as_view({'get': 'retrieve'})
             good_retrieve_request = factory.get(
@@ -143,7 +146,7 @@ class TestBillsViews:
         for bill in membership_response.data:
             assert bill.get('id')
             assert bill.get('service', {}).get('name') == 'Membership'
-            assert bill.get('user_details', {}).get('email') == new_user.email
+            assert bill.get('user_id') == new_user.id
 
         house_request = factory.get(
             BILLS_URI + '?service=House',
@@ -156,7 +159,7 @@ class TestBillsViews:
         for bill in house_response.data:
             assert bill.get('id')
             assert bill.get('service', {}).get('name') == 'House'
-            assert bill.get('user_details', {}).get('email') == new_user.email
+            assert bill.get('user_id') == new_user.id
 
     def test_get_other_bills_should_be_forbidden(self, new_user, other_user):
         b1 = Bill.objects.create(
@@ -199,7 +202,7 @@ class TestBillsViews:
             HTTP_AUTHORIZATION=get_jwt_header(new_user.email)
         )
         response = view(request, pk=b1.id)
-        
+        print(response.data)
         assert response.status_code == 200
         assert response.data.get('id') == b1.id
         assert response.data.get('name') == other_bill_info['name']
