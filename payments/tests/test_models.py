@@ -1,15 +1,8 @@
-from django.contrib.auth import get_user_model
-
-from mixer.backend.django import mixer
-
 from payments.models import Payment
-from payments.tests.fixtures import (new_payment, new_payment_info)
-from bills.tests.fixtures import (new_bill)
-
+from payments.tests.fixtures import new_payment
 
 import pytest
 pytestmark = pytest.mark.django_db
-User = get_user_model()
 
 
 class TestPaymentModels:
