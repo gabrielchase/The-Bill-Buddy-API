@@ -119,3 +119,37 @@ class TestPaymentsViews:
         response = view(request, pk=new_payment.id)
 
         assert response.status_code == 403
+
+    def test_payment_update_good(self, new_payment, new_payment_info):
+        view = PaymentViewSet.as_view({'put': 'update'})
+        request = factory.put(
+            PAYMENTS_URI,
+            data=json.dumps(new_payment_info),
+            content_type='application/json',
+            HTTP_AUTHORIZATION=get_jwt_header(new_payment.user.email)
+        )
+        response = view(request, pk=new_payment.id)
+
+        assert response.status_code == 200
+        assert response.data.get('id') == new_payment.id
+        assert response.data.get('bill_id') == new_payment.bill.id
+        assert response.data.get('user_id') == new_payment.user.id
+
+        assert response.data.get('amount') == new_payment_info['amount']
+        assert response.data.get('due_date') == new_payment_info['due_date']
+        assert response.data.get('date_paid') == new_payment_info['date_paid']
+        assert response.data.get('status') == new_payment_info['status']
+        assert response.data.get('additional_notes') == new_payment_info['additional_notes']
+
+    def test_payment_update_bad(self, new_payment, new_payment_info, other_user):
+        view = PaymentViewSet.as_view({'put': 'update'})
+        request = factory.put(
+            PAYMENTS_URI,
+            data=json.dumps(new_payment_info),
+            content_type='application/json',
+            HTTP_AUTHORIZATION=get_jwt_header(other_user.email)
+        )
+        response = view(request, pk=new_payment.id)
+        
+        assert response.status_code == 403
+        

@@ -15,6 +15,7 @@ def new_payment_info():
         'date_paid': mixer.faker.date(),
         'status': get_status(),
         'additional_notes': mixer.faker.text(),
+        'bill_id': 0
     }
 
 @pytest.fixture
