@@ -15,7 +15,7 @@ class Payment(models.Model):
     status = models.CharField(max_length=8,default='NOT PAID')
     additional_notes = models.TextField(null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False)
-    bill = models.ForeignKey(Bill, on_delete=models.CASCADE, null=False, blank=False)
+    bill = models.ForeignKey(Bill, on_delete=models.CASCADE, null=False, blank=False, related_name='payments')
 
     def __str__(self):
         return '{}: {}'.format(self.bill, self.id)

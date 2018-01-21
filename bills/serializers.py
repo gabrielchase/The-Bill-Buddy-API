@@ -5,7 +5,7 @@ from rest_framework import serializers
 from bills.models import (Bill, Service)
 from bills.utils import handle_service_instance
 
-from users.serializers import (UserSerializer)
+from payments.serializers import PaymentSerializer
 
 import json
 
@@ -21,12 +21,13 @@ class ServiceSerializer(serializers.ModelSerializer):
 
 class BillSerializer(serializers.ModelSerializer):
 
-    user_details = serializers.SerializerMethodField()
+    payments = PaymentSerializer(many=True, read_only=True)
     service = ServiceSerializer()
+    # user_details = serializers.SerializerMethodField()
 
     class Meta:
         model = Bill
-        fields = ('id', 'name', 'description', 'due_date', 'service', 'user_details')
+        fields = ('id', 'name', 'description', 'due_date', 'service', 'payments', 'user')
 
     def get_user_details(self, obj):
         user_details = {
