@@ -42,3 +42,14 @@ class PaymentSerializer(serializers.ModelSerializer):
         print('New bill created: ', new_payment)
         
         return new_payment
+
+    def update(self, payment_instance, data):
+        del data['bill_id']
+
+        payment_instance.amount = data.get('amount')
+        payment_instance.due_date = data.get('due_date')
+        payment_instance.date_paid = data.get('date_paid')
+        payment_instance.status = data.get('status')
+        payment_instance.additional_notes = data.get('additional_notes')
+        payment_instance.save()
+        return payment_instance
