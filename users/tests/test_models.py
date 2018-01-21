@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from mixer.backend.django import mixer
-from users.tests.fixtures import new_user_info
+from users.tests.fixtures import (new_user_info, new_user)
 
 # IMPORTANT: Allows tests to write into the database 
 import pytest
@@ -9,6 +9,9 @@ User = get_user_model()
 
 
 class TestUsersModels:
+
+    def test_model_fixture(self, new_user):
+        assert new_user.id
 
     def test_model_create_user(self, new_user_info):
         new_user = User.objects.create_user(
