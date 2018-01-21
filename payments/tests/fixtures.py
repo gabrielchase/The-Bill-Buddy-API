@@ -30,6 +30,8 @@ def new_payment():
         user=new_bill_instance.user
     )
 
+other_payment = new_payment
+
 def get_status():
     val = randint(0, 1)
     if val:

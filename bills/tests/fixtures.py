@@ -35,3 +35,5 @@ def new_bill():
         service=handle_service_instance(mixer.faker.genre()),
         user=user
     )
+
+other_bill = new_bill
