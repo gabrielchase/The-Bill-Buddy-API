@@ -29,3 +29,12 @@ class BillPermission(permissions.BasePermission):
                         return True
         except AttributeError:
             return False
+
+
+class ServicePermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        try:
+            if request.META.get('HTTP_AUTHORIZATION').split()[1] and request.method == 'GET':
+                    return True
+        except AttributeError:
+            return False
