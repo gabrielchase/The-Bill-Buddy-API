@@ -18,8 +18,8 @@ class Bill(models.Model):
     name = models.CharField(max_length=255, null=False, blank=False)
     description = models.TextField(null=True, blank=True)
     due_date = models.IntegerField(null=True, blank=True)
-    service = models.ForeignKey(Service, on_delete=models.CASCADE, null=True, blank=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, null=True, blank=True, related_name='bills')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False, related_name='bills')
 
     def __str__(self):
         return '{} - {}'.format(self.service, self.name)
