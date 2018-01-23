@@ -12,23 +12,15 @@ import json
 User = get_user_model()
 
 
-class ServiceSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Service
-        fields = ('id', 'name',)
-
-
 class BillSerializer(serializers.ModelSerializer):
 
-    payments = PaymentSerializer(many=True, read_only=True)
-    service = ServiceSerializer()
     user_id = serializers.IntegerField(read_only=True)
+    service_id = serializers.IntegerField(read_only=True)
     # user_details = serializers.SerializerMethodField()
 
     class Meta:
         model = Bill
-        fields = ('id', 'name', 'description', 'due_date', 'service', 'payments', 'user_id')
+        fields = ('id', 'name', 'description', 'due_date', 'service_id', 'user_id')
 
     def get_user_details(self, obj):
         user_details = {
@@ -76,11 +68,35 @@ class BillSerializer(serializers.ModelSerializer):
     def update(self, bill_instance, data):
         print('Updating: ', bill_instance)
         print('Data: ', data)
-        service_name = data.get('service', {}).get('name')
         bill_instance.name = data.get('name')
         bill_instance.description = data.get('description')
         bill_instance.due_date = data.get('due_date')
-        bill_instance.service = handle_service_instance(service_name)
+        
+        service_name = data.get('service', {}).get('name')
+        if service_name:
+            bill_instance.service = handle_service_instance(service_name)
+        
         bill_instance.save()
+        
         print('Updated instance: ', bill_instance)
         return bill_instance
+
+
+
+class ServiceSerializer(serializers.ModelSerializer):
+    bills = BillSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Service
+        fields = ('id', 'name', 'bills')
+
+
+class BillDetailSerializer(BillSerializer):
+    
+    payments = PaymentSerializer(many=True, read_only=True)
+    service_id = serializers.IntegerField(read_only=True)
+    user_id = serializers.IntegerField(read_only=True)
+    
+    class Meta:
+        model = Bill
+        fields = ('id', 'name', 'description', 'due_date', 'payments', 'service_id', 'user_id')
