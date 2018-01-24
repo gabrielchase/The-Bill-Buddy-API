@@ -12,7 +12,6 @@ from payments.views import PaymentViewSet
 router = DefaultRouter()
 router.register('users', UserViewSet)
 router.register('bills', BillViewSet)
-# router.register('services', ServiceViewSet)
 router.register('payments', PaymentViewSet)
 
 
