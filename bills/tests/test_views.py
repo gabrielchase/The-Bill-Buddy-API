@@ -4,8 +4,8 @@ from mixer.backend.django import mixer
 from rest_framework.test import APIRequestFactory
 
 from bills.models import (Bill, Service)
-from bills.tests.fixtures import (new_bill_info, other_bill_info, new_bill)
-from bills.views import BillViewSet
+from bills.tests.fixtures import (new_bill_info, other_bill_info, new_bill, other_bill)
+from bills.views import (BillViewSet, ServiceList)
 from bills.utils import handle_service_instance
 
 from users.tests.fixtures import (new_user, other_user)
@@ -15,11 +15,13 @@ from random import randint
 
 import json
 import pytest
+import requests
 
 pytestmark = pytest.mark.django_db
 User = get_user_model()
 factory = APIRequestFactory()
 BILLS_URI = 'api/bills/'
+SERVICES_URI = 'api/services/'
 
 
 class TestBillsViews: 
@@ -242,3 +244,73 @@ class TestBillsViews:
 
         assert response.status_code == 403
         
+
+class TestServicesView:
+
+    def test_service_get_list(self, new_user):
+        Bill.objects.create(
+            name=mixer.faker.first_name(),
+            description=mixer.faker.text(),
+            due_date=randint(1, 31),
+            service=handle_service_instance('House'),
+            user=new_user
+        )
+
+        Bill.objects.create(
+            name=mixer.faker.first_name(),
+            description=mixer.faker.text(),
+            due_date=randint(1, 31),
+            service=handle_service_instance('House'),
+            user=new_user
+        )
+
+        Bill.objects.create(
+            name=mixer.faker.first_name(),
+            description=mixer.faker.text(),
+            due_date=randint(1, 31),
+            service=handle_service_instance('Medical'),
+            user=new_user
+        )
+
+        Bill.objects.create(
+            name=mixer.faker.first_name(),
+            description=mixer.faker.text(),
+            due_date=randint(1, 31),
+            service=handle_service_instance('Medical'),
+            user=new_user
+        )
+
+        Bill.objects.create(
+            name=mixer.faker.first_name(),
+            description=mixer.faker.text(),
+            due_date=randint(1, 31),
+            service=handle_service_instance('Medical'),
+            user=new_user
+        )
+
+        view = ServiceList.as_view()
+        request = factory.get(
+            SERVICES_URI,
+            content_type='application/json',
+            HTTP_AUTHORIZATION=get_jwt_header(new_user.email)
+        )
+        response = view(request)
+
+        assert response.status_code == 200
+        assert len(response.data) == 2
+        
+        for service in response.data:
+            assert service.get('id')
+            
+            if service.get('name') == 'Medical':
+                assert len(service.get('bills')) == 3
+            elif service.get('name') == 'House':
+                assert len(service.get('bills')) == 2
+            
+            for bill in service.get('bills'):
+                assert bill.get('id')
+                assert bill.get('name')
+                assert bill.get('description')
+                assert bill.get('due_date')
+                assert bill.get('service_id') == service.get('id')
+                assert bill.get('user_id') == new_user.id
