@@ -16,11 +16,12 @@ class BillSerializer(serializers.ModelSerializer):
 
     user_id = serializers.IntegerField(read_only=True)
     service_id = serializers.IntegerField(read_only=True)
+    service_name = serializers.CharField(write_only=True)
     # user_details = serializers.SerializerMethodField()
 
     class Meta:
         model = Bill
-        fields = ('id', 'name', 'description', 'due_date', 'service_id', 'user_id')
+        fields = ('id', 'name', 'description', 'due_date', 'service_name', 'service_id', 'user_id')
 
     def get_user_details(self, obj):
         user_details = {
@@ -40,7 +41,7 @@ class BillSerializer(serializers.ModelSerializer):
         print('Creating a Bill with the following data: ', data)
         print('request.user: ', self.context['request'].user)
 
-        service_name = data.get('service', {}).get('name')
+        service_name = data.get('service_name')
         service_instance = handle_service_instance(service_name)
 
         print('service_instance: ', service_instance)
