@@ -314,3 +314,4 @@ class TestServicesView:
                 assert bill.get('due_date')
                 assert bill.get('service_id') == service.get('id')
                 assert bill.get('user_id') == new_user.id
+                

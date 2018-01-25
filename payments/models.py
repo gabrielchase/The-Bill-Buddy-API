@@ -10,7 +10,7 @@ User = get_user_model()
 class Payment(models.Model):
     id = models.AutoField(primary_key=True)
     amount = models.DecimalField(max_digits=20, decimal_places=2)
-    due_date = models.DateField(auto_now=False, auto_now_add=False)
+    due_date = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
     date_paid = models.DateField(auto_now=False, auto_now_add=False, null=True, blank=True)
     status = models.CharField(max_length=8,default='NOT PAID')
     additional_notes = models.TextField(null=True, blank=True)

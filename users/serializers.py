@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 
-from rest_framework import serializers
+from rest_framework import (serializers, status)
+from rest_framework.response import Response
 
 from bills.models import (Bill, Service)
 
@@ -77,4 +78,6 @@ class UserSerializer(serializers.ModelSerializer):
                 detail_instance.mobile_number = details.get('mobile_number')
                 detail_instance.save()
 
-        return user_instance
+            return user_instance
+        else:
+            return Response(status=status.HTTP_403_FORBIDDEN)
