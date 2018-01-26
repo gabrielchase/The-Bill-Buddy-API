@@ -16,14 +16,14 @@ class BillSerializer(serializers.ModelSerializer):
 
     user_id = serializers.IntegerField(read_only=True)
     service_id = serializers.IntegerField(read_only=True)
-    service_instance_name = serializers.SerializerMethodField()
+    instance_service_name = serializers.SerializerMethodField()
     service_name = serializers.CharField(write_only=True)
 
     class Meta:
         model = Bill
-        fields = ('id', 'name', 'description', 'due_date', 'user_id', 'service_id', 'service_instance_name', 'service_name')
+        fields = ('id', 'name', 'description', 'due_date', 'user_id', 'service_id', 'instance_service_name', 'service_name')
 
-    def get_service_instance_name(self, obj):
+    def get_instance_service_name(self, obj):
         return Service.objects.get(id=obj.service_id).name
 
     def get_user_details(self, obj):
@@ -101,4 +101,4 @@ class BillDetailSerializer(BillSerializer):
     
     class Meta:
         model = Bill
-        fields = ('id', 'name', 'description', 'due_date', 'user_id', 'service_id', 'service_instance_name', 'service_name')
+        fields = ('id', 'name', 'description', 'due_date', 'payments', 'user_id', 'service_id', 'instance_service_name', 'service_name')
