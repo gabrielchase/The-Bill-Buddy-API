@@ -76,7 +76,7 @@ class BillSerializer(serializers.ModelSerializer):
         bill_instance.description = data.get('description')
         bill_instance.due_date = data.get('due_date')
         
-        service_name = data.get('service', {}).get('name')
+        service_name = data.get('service_name')
         if service_name:
             bill_instance.service = handle_service_instance(service_name)
         
