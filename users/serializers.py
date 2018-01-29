@@ -5,9 +5,14 @@ from rest_framework.response import Response
 
 from bills.models import (Bill, Service)
 
+from payments.models import Payment
+
 from users.models import Details
 
+import datetime
+
 User = get_user_model()
+TODAY = datetime.date.today()
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -25,13 +30,14 @@ class DetailsSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     details = DetailsSerializer()
     services = serializers.SerializerMethodField()
+    payments_this_month = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = (
             'id', 'email', 'username', 'first_name', 'last_name', 
             'last_login', 'date_joined', 'password',
-            'details', 'services'
+            'details', 'services', 'payments_this_month'
         )
         read_only_fields = ('username', 'last_login', 'date_joined')
         extra_kwargs = {
@@ -46,6 +52,26 @@ class UserSerializer(serializers.ModelSerializer):
             service_names.append(service.name)
 
         return service_names
+    
+    def get_payments_this_month(self, user_instance):
+        payments_this_month = []
+        user_payments = Payment.objects.filter(
+            user=user_instance, 
+            due_date__year=TODAY.year, # not required but more explicit
+            due_date__month=TODAY.month
+        )
+        for payment in user_payments:
+            payment_dict = {
+                'amount': payment.amount,
+                'due_date': payment.due_date,
+                'status': payment.status,
+                'additional_notes': payment.additional_notes, 
+                'bill_name': payment.bill.name,
+                'service': payment.bill.service.name
+            }
+            payments_this_month.append(payment_dict)
+        print('{} payments this month: '.format(user_instance.email), payments_this_month)
+        return payments_this_month
 
     def create(self, data):
         print('Creating user with data: ', data)
