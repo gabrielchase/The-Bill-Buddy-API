@@ -59,7 +59,7 @@ class UserSerializer(serializers.ModelSerializer):
             user=user_instance, 
             due_date__year=TODAY.year, # not required but more explicit
             due_date__month=TODAY.month
-        )
+        ).order_by('due_date')
         for payment in user_payments:
             payment_dict = {
                 'amount': payment.amount,
