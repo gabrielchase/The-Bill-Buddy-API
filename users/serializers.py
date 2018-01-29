@@ -31,13 +31,14 @@ class UserSerializer(serializers.ModelSerializer):
     details = DetailsSerializer()
     services = serializers.SerializerMethodField()
     payments_this_month = serializers.SerializerMethodField()
+    expenditure_this_year = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = (
             'id', 'email', 'username', 'first_name', 'last_name', 
             'last_login', 'date_joined', 'password',
-            'details', 'services', 'payments_this_month'
+            'details', 'services', 'payments_this_month', 'expenditure_this_year'
         )
         read_only_fields = ('username', 'last_login', 'date_joined')
         extra_kwargs = {
@@ -72,6 +73,29 @@ class UserSerializer(serializers.ModelSerializer):
             payments_this_month.append(payment_dict)
         print('{} payments this month: '.format(user_instance.email), payments_this_month)
         return payments_this_month
+
+    def get_expenditure_this_year(self, user_instance):
+        expenditure_this_year = { 'total': 0 }
+        payments = Payment.objects.filter(
+            user=user_instance, 
+            due_date__year=TODAY.year, # not required but more explicit
+        )
+        keys = []
+        for payment in payments:
+            expenditure_this_year['total'] += payment.amount
+            bill_name_key = payment.bill.name.replace(' ', '_')
+            keys.append(bill_name_key)
+            expenditure_this_year.update({ bill_name_key:  payment.amount })
+
+        for key in keys:
+            bill_amount = expenditure_this_year[key]
+            bill_percentage = round(bill_amount / expenditure_this_year['total'], 2)
+            new_key = key + '_percentage'
+            expenditure_this_year.update({ new_key: bill_percentage })
+
+        print('{} expenditure this year: '.format(user_instance.email), expenditure_this_year)
+        return expenditure_this_year
+
 
     def create(self, data):
         print('Creating user with data: ', data)
