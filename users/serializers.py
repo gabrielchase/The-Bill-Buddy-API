@@ -78,7 +78,8 @@ class UserSerializer(serializers.ModelSerializer):
         expenditure_this_year = { 'total': 0 }
         payments = Payment.objects.filter(
             user=user_instance, 
-            due_date__year=TODAY.year, # not required but more explicit
+            date_paid__year=TODAY.year, # not required but more explicit
+            status='Paid'
         )
         keys = []
         for payment in payments:
