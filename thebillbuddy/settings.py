@@ -107,7 +107,7 @@ db_from_env = dj_database_url.config(conn_max_age=500)
 print('DB_FROM_ENV: {}'.format(db_from_env))
 
 if db_from_env:
-    print('USING DB_FROM_ENV: {}'.format(DB_FROM_ENV))
+    print('USING DB_FROM_ENV: {}'.format(db_from_env))
     DATABASES['default'].update(db_from_env)
 
 
