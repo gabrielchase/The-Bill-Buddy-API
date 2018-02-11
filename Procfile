@@ -1,0 +1,1 @@
+web: gunicorn thebillbuddy.wsgi --log-file -
