@@ -118,9 +118,9 @@ class BillDetailSerializer(BillSerializer):
         payments = Payment.objects.filter(bill=obj)
         lifetime_payment = payments.aggregate(Sum('amount'))
         payments_this_year = payments.filter(date_paid__year=TODAY.year).aggregate(Sum('amount'))
-        
-        return {
-            'lifetime_payment': lifetime_payment.get('amount__sum'),
-            'payments_this_year': payments_this_year.get('amount__sum')
-        }
+
+        return json.loads(json.dumps({
+            'lifetime_payment': str(lifetime_payment.get('amount__sum')),
+            'payments_this_year': str(payments_this_year.get('amount__sum'))
+        }))
         
