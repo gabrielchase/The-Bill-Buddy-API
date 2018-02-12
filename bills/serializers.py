@@ -1,15 +1,19 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Sum
 
 from rest_framework import serializers
 
 from bills.models import (Bill, Service)
 from bills.utils import handle_service_instance
 
+from payments.models import Payment
 from payments.serializers import PaymentSerializer
 
 import json
+import datetime
 
 User = get_user_model()
+TODAY = datetime.date.today()
 
 
 class BillSerializer(serializers.ModelSerializer):
@@ -96,9 +100,27 @@ class ServiceSerializer(serializers.ModelSerializer):
 
 
 class BillDetailSerializer(BillSerializer):
-    
-    payments = PaymentSerializer(many=True, read_only=True)
+    payments = serializers.SerializerMethodField()
+    total_bill_info = serializers.SerializerMethodField()
     
     class Meta:
         model = Bill
-        fields = ('id', 'name', 'description', 'due_date', 'payments', 'user_id', 'service_id', 'instance_service_name', 'service_name')
+        fields = (
+            'id', 'name', 'description', 'due_date', 'payments', 'user_id', 'service_id', 
+            'instance_service_name', 'service_name', 'total_bill_info'
+        )
+
+    def get_payments(self, obj):
+        payments_queryset = Payment.objects.filter(bill=obj, user=obj.user).order_by('due_date')
+        return PaymentSerializer(payments_queryset, many=True, read_only=True).data
+
+    def get_total_bill_info(self, obj):
+        payments = Payment.objects.filter(bill=obj)
+        lifetime_payment = payments.aggregate(Sum('amount'))
+        payments_this_year = payments.filter(date_paid__year=TODAY.year).aggregate(Sum('amount'))
+        
+        return {
+            'lifetime_payment': lifetime_payment.get('amount__sum'),
+            'payments_this_year': payments_this_year.get('amount__sum')
+        }
+        
