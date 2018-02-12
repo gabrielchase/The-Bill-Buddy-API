@@ -63,10 +63,12 @@ class UserSerializer(serializers.ModelSerializer):
         ).order_by('due_date')
         for payment in user_payments:
             payment_dict = {
+                'id': payment.id,
                 'amount': payment.amount,
                 'due_date': payment.due_date,
                 'status': payment.status,
                 'additional_notes': payment.additional_notes, 
+                'bill_id': payment.bill.id,
                 'bill_name': payment.bill.name,
                 'service': payment.bill.service.name
             }

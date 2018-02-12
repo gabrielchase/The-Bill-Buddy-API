@@ -123,4 +123,3 @@ class BillDetailSerializer(BillSerializer):
             'lifetime_payment': str(lifetime_payment.get('amount__sum')),
             'payments_this_year': str(payments_this_year.get('amount__sum'))
         }))
-        
