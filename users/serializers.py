@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 
 from rest_framework import (serializers, status)
 from rest_framework.response import Response
@@ -80,8 +81,7 @@ class UserSerializer(serializers.ModelSerializer):
         expenditure_this_year = { 'total': 0 }
         payments = Payment.objects.filter(
             user=user_instance, 
-            due_date__year=TODAY.year, 
-            date_paid__year=TODAY.year,
+            Q(due_date__year=TODAY.year) | Q(date_paid__year=TODAY.year),
             status='Paid'
         )
         keys = []
