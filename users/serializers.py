@@ -78,13 +78,12 @@ class UserSerializer(serializers.ModelSerializer):
         return payments_this_month
 
     def get_expenditure_this_year(self, user_instance):
-        expenditure_this_year = { 'total': 0 }
-        payments = Payment.objects.filter(
-            user=user_instance, 
-            Q(due_date__year=TODAY.year) | Q(date_paid__year=TODAY.year),
-            status='Paid'
-        )
         keys = []
+        expenditure_this_year = { 'total': 0 }
+        
+        payments = Payment.objects.filter(Q(due_date__year=TODAY.year) | Q(date_paid__year=TODAY.year))
+        payments = payments.filter(user=user_instance, status='Paid')
+
         for payment in payments:
             expenditure_this_year['total'] += payment.amount
             bill_name_key = payment.bill.name.replace(' ', '_')
