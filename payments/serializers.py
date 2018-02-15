@@ -15,10 +15,20 @@ User = get_user_model()
 class PaymentSerializer(serializers.ModelSerializer):
     bill_id = serializers.IntegerField()
     user_id = serializers.IntegerField(read_only=True)
+    bill_name = serializers.SerializerMethodField()
+    service = serializers.SerializerMethodField()
 
     class Meta:
         model = Payment
-        fields = ('id', 'amount', 'due_date', 'date_paid', 'status', 'additional_notes', 'bill_id', 'user_id')
+        fields = (
+            'id', 'amount', 'due_date', 'date_paid', 'status', 'additional_notes', 
+            'bill_id', 'user_id', 'bill_name', 'service')
+
+    def get_bill_name(self, obj):
+        return obj.bill.name 
+    
+    def get_service(self, obj):
+        return json.loads(json.dumps({'id': obj.bill.service.id, 'name': obj.bill.service.name}))
 
     def create(self, data):
         print('Creating new payment with data: ', data)
